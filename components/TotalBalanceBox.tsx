@@ -1,6 +1,5 @@
+import AnimatedCounter from '@/components/AnimatedCounter';
 import DoughnutChart from '@/components/DoughnutChart';
-import AnimatedCounter from './AnimatedCounter';
-
 const TotalBalanceBox = ({ accounts = [], totalBanks, totalCurrentBalance }: TotalBalanceBoxProps) => {
   return <section className='total-balance'>
     <div className='total-balance-chart'>

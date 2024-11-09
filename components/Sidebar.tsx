@@ -1,5 +1,6 @@
 "use client";
 
+import Footer from '@/components/Footer';
 import { sidebarLinks } from '@/constants';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -12,7 +13,7 @@ const Sidebar = ({ user }: SidebarProps) => {
   return <section className='sidebar'>
     <nav className='flex flex-col gap-4'>
       <Link href='/' className='mb-12 cursor-pointer flex items-center gap-2'>
-        <Image className='size-[24px] max-xl:size-14' src='/icons/logo.svg' alt='Horizon logo' width={34} height={34} />
+        <Image className='size-[24px] max-xl:size-14' src='/icons/logo.svg' alt='Horizon logo' width={34} height={34} priority />
         <h1 className='sidebar-logo'>Horizon</h1>
       </Link>
       {sidebarLinks.map((item) => {
@@ -29,7 +30,7 @@ const Sidebar = ({ user }: SidebarProps) => {
       })}
       USER
     </nav>
-    FOOTER
+    <Footer user={user} type='desktop' />
   </section>;
 };
 export default Sidebar;

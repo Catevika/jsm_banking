@@ -1,5 +1,6 @@
 "use client";
 
+import Footer from '@/components/Footer';
 import {
   Sheet,
   SheetClose,
@@ -29,7 +30,7 @@ const MobileNav = ({ user }: MobileNavProps) => {
             <SheetTitle></SheetTitle>
             <SheetDescription></SheetDescription>
             <Link href='/' className='cursor-pointer flex items-center gap-1 px-4'>
-              <Image src='/icons/logo.svg' alt='Horizon logo' width={34} height={34} />
+              <Image src='/icons/logo.svg' alt='Horizon logo' width={34} height={34} priority />
               <h1 className='text-26 font-ibm-plex-serif font-bold to-black-1'>Horizon</h1>
             </Link>
             <div className='mobilenav-sheet'>
@@ -51,7 +52,7 @@ const MobileNav = ({ user }: MobileNavProps) => {
                   USER
                 </nav>
               </SheetClose>
-              FOOTER
+              <Footer user={user} type='mobile' />
             </div>
           </SheetHeader>
         </SheetContent>
