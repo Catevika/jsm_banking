@@ -87,7 +87,7 @@ const AuthForm = ({ type }: { type: string; }) => {
                 <CustomInput name='postalCode' control={form.control} label='Postal Code' placeholder='Example: 11101' autoComplete='none' />
               </div>
               <div className='flex gap-4'>
-                <CustomInput name='dateOfBirth' control={form.control} label='Date of Birth' placeholder='YYY-MM-DD' autoComplete='none' />
+                <CustomInput name='dateOfBirth' control={form.control} label='Date of Birth' placeholder='YYYY-MM-DD' autoComplete='none' />
                 <CustomInput name='ssn' control={form.control} label='SSN' placeholder='Example: 1234' autoComplete='none' />
               </div>
             </>
@@ -99,11 +99,13 @@ const AuthForm = ({ type }: { type: string; }) => {
 
           <div className='flex flex-col gap-4'>
             <Button className='form-btn' type="submit" disabled={isLoading}>
-              {isLoading ?
+              {isLoading ? (
                 <>
-                  <Loader2 className='animate-spin' size={20} />&nbsp;Loading...
+                  <Loader2 size={20} className="animate-spin" /> &nbsp;
+                  Loading...
                 </>
-                : type === 'sign-in' ? 'Sign In' : 'Sign Up'}
+              ) : type === 'sign-in'
+                ? 'Sign In' : 'Sign Up'}
             </Button>
           </div>
         </form>
