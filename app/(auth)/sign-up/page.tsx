@@ -8,7 +8,7 @@ const SignUp = async () => {
   const user = await getLoggedInUser();
 
   return (
-    <section className='flex items-center justify-start h-screen flex-col w-full px-6'>
+    <section className={user ? 'flex-center h-screen flex-col w-full px-6' : 'flex items-center justify-start h-screen flex-col w-full px-6'}>
       <AuthHeader type='sign-up' />
       {user ? (
         <div className='flex flex-col gap-4'>

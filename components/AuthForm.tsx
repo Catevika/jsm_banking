@@ -38,7 +38,6 @@ const AuthForm = ({ type }: { type: string; }) => {
 
     try {
       setIsLoading(true);
-      // SIGNUP WITH APPWRITE AND CREATE A PLAID TOKEN
       if (type === 'sign-up') {
         const userData = {
           firstName: data.firstName!,
