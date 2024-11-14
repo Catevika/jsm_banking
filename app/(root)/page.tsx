@@ -5,7 +5,9 @@ import TotalBalanceBox from '@/components/TotalBalanceBox';
 import { getAccount, getAccounts } from '@/lib/actions/bank.actions';
 import { getLoggedInUser } from '@/lib/actions/user.actions';
 
-const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
+const Home = async ({ searchParams }: { searchParams: { id: string; page: string; }; }) => {
+  const { id, page } = await searchParams;
+
   const currentPage = Number(page as string) || 1;
   const loggedIn = await getLoggedInUser();
   const accounts = await getAccounts({
@@ -26,7 +28,7 @@ const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
           <HeaderBox
             type="greeting"
             title="Welcome"
-            user={loggedIn?.firstName || 'Guest'}
+            user={loggedIn.name || 'Guest'}
             subtext="Access and manage your account and transactions efficiently."
           />
 
