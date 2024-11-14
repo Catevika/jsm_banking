@@ -1,8 +1,13 @@
 import BankCard from '@/components/BankCard';
+import { countTransactionCategories } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const RightSidebar = async ({ user, transactions, banks }: RightSidebarProps) => {
+  const categories: CategoryCount[] = countTransactionCategories(transactions);
+  console.log('Output ~ RightSidebar ~ categories:', categories);
+
+
   return (
     <aside className="right-sidebar">
       <section className='flex flex-col pb-8'>

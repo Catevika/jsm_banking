@@ -15,12 +15,37 @@ const {
   APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID,
 } = process.env;
 
-export const signIn = async ({ email, password }: signInProps) => {
+export const getUserInfo = async ({ userId }: GetUserInfoProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const user = await database.listDocuments(
+      DATABASE_ID!,
+      USER_COLLECTION_ID!,
+      [Query.equal('userId', userId)]
+    );
+
+    return parseStringify(user.documents[0]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const signIn = async ({ email, password }: SignInProps) => {
   try {
     const { account } = await createAdminClient();
-    const response = await account.createEmailPasswordSession(email, password);
+    const session = await account.createEmailPasswordSession(email, password);
 
-    return parseStringify(response);
+    (await cookies()).set("appwrite-session", session.secret, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "strict",
+      secure: true,
+    });
+
+    const user = await getUserInfo({ userId: session.userId });
+
+    return parseStringify(user);
 
   } catch (error) {
     console.log('Error', error);
@@ -104,9 +129,10 @@ export const createLinkToken = async (user: User) => {
         client_user_id: user.$id,
       },
       client_name: user.name,
-      products: ['auth'] as Products[],
+      products: ['auth', 'transactions'] as Products[],
       language: 'en',
       country_codes: ['US'] as CountryCode[],
+      webhook: process.env.PLAID_WEBHOOK_URL,
     };
 
     const response = await plaidClient.linkTokenCreate(tokenParams);
@@ -125,7 +151,7 @@ export const createBankAccount = async ({
   accessToken,
   fundingSourceUrl,
   sharableId,
-}: createBankAccountProps) => {
+}: CreateBankAccountProps) => {
   try {
     const { database } = await createAdminClient();
 
@@ -154,7 +180,7 @@ export const createBankAccount = async ({
 export const exchangePublicToken = async ({
   publicToken,
   user,
-}: exchangePublicTokenProps) => {
+}: ExchangePublicTokenProps) => {
   try {
     const { database } = await createAdminClient();
 
@@ -227,5 +253,55 @@ export const exchangePublicToken = async ({
     // Log any errors that occur during the process
     console.log("Token exchange error details:", error);
     throw error;
+  }
+};
+
+export const getBanks = async ({ userId }: GetBanksProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const banks = await database.listDocuments(
+      DATABASE_ID!,
+      BANK_COLLECTION_ID!,
+      [Query.equal('userId', userId)]
+    );
+
+    return parseStringify(banks.documents);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getBank = async ({ documentId }: GetBankProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const bank = await database.listDocuments(
+      DATABASE_ID!,
+      BANK_COLLECTION_ID!,
+      [Query.equal('$id', documentId)]
+    );
+
+    return parseStringify(bank.documents[0]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getBankByAccountId = async ({ accountId }: GetBankByAccountIdProps) => {
+  try {
+    const { database } = await createAdminClient();
+
+    const bank = await database.listDocuments(
+      DATABASE_ID!,
+      BANK_COLLECTION_ID!,
+      [Query.equal('accountId', accountId)]
+    );
+
+    if (bank.total !== 1) return null;
+
+    return parseStringify(bank.documents[0]);
+  } catch (error) {
+    console.log(error);
   }
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import Footer from '@/components/Footer';
+import PlaidLink from '@/components/PlaidLink';
 import { sidebarLinks } from '@/constants';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -28,7 +29,7 @@ const Sidebar = ({ user }: SidebarProps) => {
           </Link>
         );
       })}
-      USER
+      <PlaidLink user={user} />
     </nav>
     <Footer user={user} type='desktop' />
   </section>;

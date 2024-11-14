@@ -60,6 +60,7 @@ const AuthForm = ({ type }: { type: string; }) => {
           password: data.password,
         });
 
+        setIsLoading(false);
         router.push('/');
       }
     } catch (error) {
