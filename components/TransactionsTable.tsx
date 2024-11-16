@@ -48,7 +48,7 @@ const TransactionTable = ({ transactions }: TransactionTableProps) => {
                 </div>
               </TableCell>
               <TableCell className={`pl-2 pr-10 font-semibold ${isDebit || amount[0] === '-' ? 'text-[#f04438]' : 'text-[#039855]'}`}>
-                {isDebit ? `- ${amount}` : isCredit ? `+ ${amount}` : amount}
+                {isDebit ? `- ${amount}` : amount}
               </TableCell>
               <TableCell className="pl-2 pr-10">
                 <CategoryBadge category={status} />
