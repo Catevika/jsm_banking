@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -25,8 +24,6 @@ const formSchema = z.object({
 
 const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,12 +36,9 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
   });
 
   const submit = async (data: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-
     makeTransfer(data);
     form.reset();
     router.push("/");
-    setIsLoading(false);
   };
 
   return (
