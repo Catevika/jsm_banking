@@ -31,11 +31,42 @@ export const getUserInfo = async ({ userId }: GetUserInfoProps) => {
   }
 };
 
+// export const signIn = async ({ email, password }: SignInProps) => {
+//   try {
+//     const { account } = await createAdminClient();
+
+//     const session = await account.createEmailPasswordSession(email, password);
+
+//     (await cookies()).set("appwrite-session", session.secret, {
+//       path: "/",
+//       httpOnly: true,
+//       sameSite: "strict",
+//       secure: true,
+//     });
+
+//     const user = await getUserInfo({ userId: session.userId });
+
+//     return parseStringify(user);
+
+//   } catch (error) {
+//     console.log('Error', error);
+//   }
+// };
+
 export const signIn = async ({ email, password }: SignInProps) => {
   try {
-    const { account } = await createAdminClient();
+    const { account, database } = await createAdminClient();
+
     const session = await account.createEmailPasswordSession(email, password);
 
+    // Get user details directly from database using session.userId
+    const userDoc = await database.listDocuments(
+      DATABASE_ID!,
+      USER_COLLECTION_ID!,
+      [Query.equal('userId', session.userId)]
+    );
+
+    // Set cookie after getting user details
     (await cookies()).set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
@@ -43,14 +74,14 @@ export const signIn = async ({ email, password }: SignInProps) => {
       secure: true,
     });
 
-    const user = await getUserInfo({ userId: session.userId });
-
-    return parseStringify(user);
+    return parseStringify(userDoc.documents[0]);
 
   } catch (error) {
     console.log('Error', error);
+    throw error;
   }
 };
+
 export const signUp = async ({ password, ...userData }: SignUpParams) => {
   const { firstName, lastName, email } = userData;
 

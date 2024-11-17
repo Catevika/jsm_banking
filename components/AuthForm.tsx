@@ -6,16 +6,12 @@ import { Form } from "@/components/ui/form";
 import { signIn, signUp } from '@/lib/actions/user.actions';
 import { authFormSchema } from '@/lib/utils';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const AuthForm = ({ type }: { type: string; }) => {
   const router = useRouter();
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const formSchema = authFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -37,7 +33,6 @@ const AuthForm = ({ type }: { type: string; }) => {
   const onSubmit = (data: z.infer<typeof formSchema>) => {
 
     try {
-      setIsLoading(true);
       if (type === 'sign-up') {
         const userData = {
           firstName: data.firstName!,
@@ -55,18 +50,18 @@ const AuthForm = ({ type }: { type: string; }) => {
       }
 
       if (type === 'sign-in') {
-        signIn({
+        const userData = {
           email: data.email,
           password: data.password,
-        });
-
-        setIsLoading(false);
-        router.push('/');
+        };
+        signIn(userData)
+          .then(() => {
+            router.refresh();
+            router.push('/');
+          });
       }
     } catch (error) {
       console.log(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -98,14 +93,8 @@ const AuthForm = ({ type }: { type: string; }) => {
           <CustomInput name='password' control={form.control} label='Password' placeholder='Enter your password' autoComplete='current-password' />
 
           <div className='flex flex-col gap-4'>
-            <Button className='form-btn' type="submit" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 size={20} className="animate-spin" /> &nbsp;
-                  Loading...
-                </>
-              ) : type === 'sign-in'
-                ? 'Sign In' : 'Sign Up'}
+            <Button className='form-btn' type="submit">
+              {type === 'sign-in' ? 'Signing In...' : 'Signing Up...'}
             </Button>
           </div>
         </form>

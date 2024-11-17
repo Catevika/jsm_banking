@@ -328,3 +328,9 @@ declare interface GetBankProps {
 declare interface GetBankByAccountIdProps {
   accountId: string;
 }
+
+declare interface progressIndicatorProps extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
+  className?: string;
+  value?: number;
+  indicatorClassName?: string;
+}

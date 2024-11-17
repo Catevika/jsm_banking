@@ -1,3 +1,4 @@
+
 export const sidebarLinks = [
   {
     imgURL: "/icons/home.svg",
@@ -53,6 +54,45 @@ export const ITEMS = [
 
 export const topCategoryStyles = {
   "Food and Drink": {
+    bg: "bg-pink-25",
+    circleBg: "bg-pink-100",
+    text: {
+      main: "text-pink-900",
+      count: "text-pink-700",
+    },
+    progress: {
+      bg: "bg-pink-100",
+      indicator: "bg-pink-700",
+    },
+    icon: "/icons/shopping-bag.svg",
+  },
+  Transfer: {
+    bg: "bg-purple-25",
+    circleBg: "bg-purple-100",
+    text: {
+      main: "text-purple-900",
+      count: "text-purple-700",
+    },
+    progress: {
+      bg: "bg-purple-100",
+      indicator: "bg-purple-700",
+    },
+    icon: "/icons/coinsTransfer.svg",
+  },
+  Payment: {
+    bg: "bg-success-25",
+    circleBg: "bg-success-100",
+    text: {
+      main: "text-success-900",
+      count: "text-success-700",
+    },
+    progress: {
+      bg: "bg-success-100",
+      indicator: "bg-success-700",
+    },
+    icon: "/icons/coinsPayment.svg",
+  },
+  Travel: {
     bg: "bg-blue-25",
     circleBg: "bg-blue-100",
     text: {
@@ -65,7 +105,7 @@ export const topCategoryStyles = {
     },
     icon: "/icons/monitor.svg",
   },
-  Travel: {
+  default: {
     bg: "bg-success-25",
     circleBg: "bg-success-100",
     text: {
@@ -75,19 +115,6 @@ export const topCategoryStyles = {
     progress: {
       bg: "bg-success-100",
       indicator: "bg-success-700",
-    },
-    icon: "/icons/coins.svg",
-  },
-  default: {
-    bg: "bg-pink-25",
-    circleBg: "bg-pink-100",
-    text: {
-      main: "text-pink-900",
-      count: "text-pink-700",
-    },
-    progress: {
-      bg: "bg-pink-100",
-      indicator: "bg-pink-700",
     },
     icon: "/icons/shopping-bag.svg",
   },
@@ -113,9 +140,9 @@ export const transactionCategoryStyles = {
     chipBackgroundColor: "bg-inherit",
   },
   Transfer: {
-    borderColor: "border-red-700",
-    backgroundColor: "bg-red-700",
-    textColor: "text-red-700",
+    borderColor: "border-purple-700",
+    backgroundColor: "bg-purple-700",
+    textColor: "text-purple-700",
     chipBackgroundColor: "bg-inherit",
   },
   Processing: {

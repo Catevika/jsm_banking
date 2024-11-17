@@ -13,7 +13,7 @@ export async function createSessionClient() {
     throw new Error("No session");
   }
 
-  client.setSession(session.value);
+  await client.setSession(session.value);
 
   return {
     get account() {

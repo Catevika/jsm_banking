@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -193,13 +192,7 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
 
         <div className="payment-transfer_btn-box">
           <Button type="submit" className="payment-transfer_btn">
-            {isLoading ? (
-              <>
-                <Loader2 size={20} className="animate-spin" /> &nbsp; Sending...
-              </>
-            ) : (
-              "Transfer Funds"
-            )}
+            Transfer Funds
           </Button>
         </div>
       </form>
