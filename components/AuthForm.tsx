@@ -94,7 +94,7 @@ const AuthForm = ({ type }: { type: string; }) => {
 
           <div className='flex flex-col gap-4'>
             <Button className='form-btn' type="submit">
-              {type === 'sign-in' ? 'Signing In' : 'Signing Up'}
+              {type === 'sign-in' ? 'Sign In' : 'Sign Up'}
             </Button>
           </div>
         </form>
