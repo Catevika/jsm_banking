@@ -9,6 +9,8 @@ const TransactionHistory = async ({ searchParams }: SearchParamProps) => {
 
   const currentPage = Number(page as string) || 1;
   const loggedIn = await getLoggedInUser();
+  if (!loggedIn && !loggedIn.$id) return;
+
   const accounts = await getAccounts({
     userId: loggedIn.$id
   });
