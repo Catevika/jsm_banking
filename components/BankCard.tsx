@@ -21,7 +21,7 @@ const BankCard = ({ account, userName, showBalance }: CreditCardProps) => {
           </article>
         </div>
         <div className='bank-card_icon'>
-          <Image src='/icons/paypass.svg' alt='Pay' width={20} height={24} />
+          <Image src='/icons/paypass.svg' alt='Pay' width={48} height={48} />
           <Image className='ml-5' src='/icons/mastercard.svg' alt='Mastercard' width={45} height={32} />
         </div>
         <Image className='absolute top-0 left-0' src='/icons/lines.png' alt='Lines' width={316} height={190} priority />
