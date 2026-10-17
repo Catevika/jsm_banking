@@ -2,5 +2,16 @@
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},
-	"cSpell.words": ["appwrite", "chartjs", "dwolla"]
+	"cSpell.words": [
+		"appwrite",
+		"banktab",
+		"chartjs",
+		"dwolla",
+		"glassmorphism",
+		"mobilenav",
+		"nowrap",
+		"plaidlink",
+		"rgba",
+		"tablist"
+	]
 }

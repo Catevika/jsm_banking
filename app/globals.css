@@ -126,7 +126,7 @@
 	}
 
 	.total-balance-chart {
-		@apply flex size-full max-w-[100px] items-center sm:max-w-[120px];
+		@apply flex size-full max-w-25 items-center sm:max-w-30;
 	}
 
 	.total-balance-label {
@@ -159,11 +159,11 @@
 
 	/* Right sidebar */
 	.right-sidebar {
-		@apply no-scrollbar! hidden! h-screen! max-h-screen! flex-col! border-l! border-gray-200! xl:flex! w-[355px]! xl:overflow-y-scroll!;
+		@apply no-scrollbar! hidden! h-screen! max-h-screen! flex-col! border-l! border-gray-200! xl:flex! w-88.75! xl:overflow-y-scroll!;
 	}
 
 	.profile-banner {
-		@apply h-[120px] w-full bg-gradient-mesh bg-cover bg-no-repeat;
+		@apply h-30 w-full bg-gradient-mesh bg-cover bg-no-repeat;
 	}
 
 	.profile {
@@ -226,11 +226,11 @@
 
 	/* Bank Card */
 	.bank-card {
-		@apply relative flex h-[190px] w-full max-w-[320px] justify-between rounded-[20px] border border-white bg-bank-gradient shadow-creditCard backdrop-blur-[6px];
+		@apply relative flex h-47.5 w-full max-w-[320px] justify-between rounded-[20px] border border-white bg-bank-gradient shadow-creditCard backdrop-blur-[6px];
 	}
 
 	.bank-card_content {
-		@apply relative z-10 flex size-full max-w-[228px] flex-col justify-between rounded-l-[20px] bg-gray-700 bg-bank-gradient px-5 pb-4 pt-5;
+		@apply relative z-10 flex size-full max-w-57 flex-col justify-between rounded-l-[20px] bg-gray-700 bg-bank-gradient px-5 pb-4 pt-5;
 	}
 
 	.bank-card_icon {
@@ -239,16 +239,16 @@
 
 	/* Bank Info */
 	.bank-info {
-		@apply gap-[18px] flex p-4 transition-all border bg-blue-25 border-transparent;
+		@apply gap-4.5 flex p-4 transition-all border bg-blue-25 border-transparent;
 	}
 
 	/* Category Badge */
 	.category-badge {
-		@apply flex-center truncate w-fit gap-1 rounded-2xl border-[1.5px] py-[2px] pl-1.5 pr-2;
+		@apply flex-center truncate w-fit gap-1 rounded-2xl border-[1.5px] py-0.5 pl-1.5 pr-2;
 	}
 
 	.banktab-item {
-		@apply gap-[18px] border-b-2 flex px-2 sm:px-4 py-2 transition-all;
+		@apply gap-4.5 border-b-2 flex px-2 sm:px-4 py-2 transition-all;
 	}
 
 	/* Mobile nav */
@@ -270,7 +270,7 @@
 	}
 
 	.plaidlink-default {
-		@apply flex !justify-start cursor-pointer gap-3 rounded-lg !bg-transparent flex-row;
+		@apply flex justify-start! cursor-pointer gap-3 rounded-lg bg-transparent! flex-row;
 	}
 
 	/* Auth */
@@ -280,7 +280,7 @@
 
 	/* Auth Form */
 	.auth-form {
-		@apply flex w-full max-w-[420px] flex-col justify-center gap-5 py-10 md:gap-8;
+		@apply flex w-full max-w-105 flex-col justify-center gap-5 py-10 md:gap-8;
 	}
 
 	.form-item {
@@ -288,7 +288,7 @@
 	}
 
 	.form-label {
-		@apply text-14 w-full max-w-[280px] font-medium text-gray-700;
+		@apply text-14 w-full max-w-70 font-medium text-gray-700;
 	}
 
 	.form-message {
@@ -309,11 +309,11 @@
 	}
 
 	.payment-transfer_form-item {
-		@apply flex w-full max-w-[850px] flex-col gap-3 md:flex-row lg:gap-8;
+		@apply flex w-full max-w-212.5 flex-col gap-3 md:flex-row lg:gap-8;
 	}
 
 	.payment-transfer_form-content {
-		@apply flex w-full max-w-[280px] flex-col gap-2;
+		@apply flex w-full max-w-70 flex-col gap-2;
 	}
 
 	.payment-transfer_form-details {
@@ -321,7 +321,7 @@
 	}
 
 	.payment-transfer_btn-box {
-		@apply mt-5 flex w-full max-w-[850px] gap-3 border-gray-200 py-5;
+		@apply mt-5 flex w-full max-w-212.5 gap-3 border-gray-200 py-5;
 	}
 
 	.payment-transfer_btn {
@@ -369,7 +369,7 @@
 
 	/* Sidebar */
 	.sidebar {
-		@apply sticky left-0 top-0 flex h-screen w-fit flex-col  justify-between border-r border-gray-200 bg-white pt-8 text-white max-md:hidden sm:p-4 xl:p-6 2xl:w-[355px];
+		@apply sticky left-0 top-0 flex h-screen w-fit flex-col  justify-between border-r border-gray-200 bg-white pt-8 text-white max-md:hidden sm:p-4 xl:p-6 2xl:w-88.75;
 	}
 
 	.sidebar-logo {
