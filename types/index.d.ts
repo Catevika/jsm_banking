@@ -22,21 +22,11 @@ declare type LoginUser = {
   password: string;
 };
 
-declare type User = {
+declare type AppUser = {
   $id: string;
   email: string;
   userId: string;
-  dwollaCustomerUrl: string;
-  dwollaCustomerId: string;
-  firstName: string;
-  lastName: string;
   name: string;
-  address1: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  dateOfBirth: string;
-  ssn: string;
 };
 
 declare type NewUserParams = {
@@ -47,10 +37,11 @@ declare type NewUserParams = {
 };
 
 declare type Account = {
+  $id?: string;
   id: string;
   availableBalance: number;
   currentBalance: number;
-  officialName: string;
+  officialName: string | null;
   mask: string;
   institutionId: string;
   name: string;
@@ -62,25 +53,24 @@ declare type Account = {
 
 declare type Transaction = {
   id: string;
-  $id: string;
   name: string;
   paymentChannel: string;
   type: string;
-  accountId: string;
+  accountId?: string;
   amount: number;
-  pending: boolean;
+  pending?: boolean;
   category: string;
   date: string;
-  image: string;
-  subtype: string;
-  $createdAt: string;
-  channel: string;
-  senderBankId: string;
-  receiverBankId: string;
+  image?: string | null;
+  subtype?: string;
+  $id?: string;
+  $createdAt?: string;
+  channel?: string;
+  senderBankId?: string;
+  receiverBankId?: string;
 };
 
-declare type Bank = {
-  $id: string;
+declare type Bank = import("node-appwrite").Models.Document & {
   accountId: string;
   bankId: string;
   accessToken: string;
@@ -154,7 +144,7 @@ declare interface HeaderBoxProps {
 }
 
 declare interface MobileNavProps {
-  user: User;
+  user: AppUser;
 }
 
 declare interface PageHeaderProps {
@@ -171,7 +161,7 @@ declare interface PaginationProps {
 }
 
 declare interface PlaidLinkProps {
-  user: User;
+  user: AppUser;
   variant?: "primary" | "ghost";
   dwollaCustomerId?: string;
 }
@@ -191,7 +181,7 @@ declare interface AuthFormProps {
 
 declare interface BankDropdownProps {
   accounts: Account[];
-  setValue?: UseFormSetValue<any>;
+  setValue?: (field: "senderBank", value: string) => void;
   otherStyles?: string;
 }
 
@@ -207,18 +197,18 @@ declare interface TotalBalanceBoxProps {
 }
 
 declare interface FooterProps {
-  user: User;
+  user: AppUser;
   type?: "desktop" | "mobile";
 }
 
 declare interface RightSidebarProps {
-  user: User;
+  user: AppUser;
   transactions: Transaction[];
-  banks: Bank[] & Account[];
+  banks: Account[];
 }
 
 declare interface SidebarProps {
-  user: User;
+  user: AppUser;
 }
 
 declare interface RecentTransactionsProps {
@@ -302,7 +292,7 @@ declare interface GetUserInfoProps {
 
 declare interface ExchangePublicTokenProps {
   publicToken: string;
-  user: User;
+  user: AppUser;
 }
 
 declare interface CreateBankAccountProps {

@@ -2,7 +2,7 @@
 
 import { createAdminClient } from "@/lib/appwrite";
 import { decryptId, parseStringify } from "@/lib/utils";
-import { ID, Query } from "node-appwrite";
+import { ID, Query, type Models } from "node-appwrite";
 
 import { createTransfer } from './dwolla.actions';
 import { getBank, getBankByAccountId } from './user.actions';
@@ -11,6 +11,15 @@ const {
   APPWRITE_DATABASE_ID: DATABASE_ID,
   APPWRITE_TRANSACTION_COLLECTION_ID: TRANSACTION_COLLECTION_ID,
 } = process.env;
+
+type TransferDocument = Models.Document & {
+  amount: number;
+  category: string;
+  channel: string;
+  name: string;
+  receiverBankId: string;
+  senderBankId: string;
+};
 
 export const createTransaction = async (transaction: CreateTransactionProps) => {
   try {
@@ -30,19 +39,20 @@ export const createTransaction = async (transaction: CreateTransactionProps) => 
     return parseStringify(newTransaction);
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 export const getTransactionsByBankId = async ({ bankId }: GetTransactionsByBankIdProps) => {
   try {
     const { database } = await createAdminClient();
 
-    const senderTransactions = await database.listDocuments(
+    const senderTransactions = await database.listDocuments<TransferDocument>(
       DATABASE_ID!,
       TRANSACTION_COLLECTION_ID!,
       [Query.equal('senderBankId', bankId)],
     );
 
-    const receiverTransactions = await database.listDocuments(
+    const receiverTransactions = await database.listDocuments<TransferDocument>(
       DATABASE_ID!,
       TRANSACTION_COLLECTION_ID!,
       [Query.equal('receiverBankId', bankId)],
@@ -59,6 +69,7 @@ export const getTransactionsByBankId = async ({ bankId }: GetTransactionsByBankI
     return parseStringify(transactions);
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 export const makeTransfer = async (data: { sharableId: string; senderBank: string; amount: string; name: string; email: string; }) => {
@@ -69,6 +80,7 @@ export const makeTransfer = async (data: { sharableId: string; senderBank: strin
       accountId: receiverAccountId,
     });
     const senderBank = await getBank({ documentId: data.senderBank });
+    if (!receiverBank) throw new Error("Recipient bank account not found");
 
     const transferParams = {
       sourceFundingSourceUrl: senderBank.fundingSourceUrl,
@@ -96,5 +108,6 @@ export const makeTransfer = async (data: { sharableId: string; senderBank: strin
     }
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };

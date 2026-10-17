@@ -20,10 +20,15 @@ const PlaidLink = ({ user, variant }: PlaidLinkProps) => {
   }, [user]);
 
   const onSuccess = useCallback<PlaidLinkOnSuccess>(async (public_token: string) => {
-    await exchangePublicToken({
+    const result = await exchangePublicToken({
       publicToken: public_token,
       user,
     });
+    if (result.unsupportedAccounts.length > 0) {
+      window.alert(
+        `These accounts were not linked because Dwolla does not support their type: ${result.unsupportedAccounts.join(', ')}.`
+      );
+    }
     router.push('/');
   }, [router, user]);
 

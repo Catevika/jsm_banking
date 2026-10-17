@@ -11,23 +11,35 @@ import { getTransactionsByBankId } from "./transaction.actions";
 import { getBank, getBanks } from "./user.actions";
 
 // Get multiple bank accounts
-export const getAccounts = async ({ userId }: GetAccountsProps) => {
+export const getAccounts = async ({ userId }: GetAccountsProps): Promise<{
+  data: Account[];
+  totalBanks: number;
+  totalCurrentBalance: number;
+}> => {
   try {
     // get banks from db
     const banks = await getBanks({ userId });
 
-    const accounts = await Promise.all(
-      banks?.map(async (bank: Bank) => {
+    const linkedAccounts = await Promise.all(
+      banks.map(async (bank) => {
         // get each account info from plaid
         const accountsResponse = await plaidClient.accountsGet({
           access_token: bank.accessToken,
         });
-        const accountData = accountsResponse.data.accounts[0];
+        const accountData = accountsResponse.data.accounts.find(
+          (account) => account.account_id === bank.accountId
+        );
+        if (!accountData) {
+          throw new Error(
+            `Plaid account ${bank.accountId} was not found for bank record ${bank.$id}`
+          );
+        }
 
         // get institution info from plaid
         const institution = await getInstitution({
           institutionId: accountsResponse.data.item.institution_id!,
         });
+        if (!institution) throw new Error("Institution not found");
 
         const account = {
           id: accountData.account_id,
@@ -47,6 +59,29 @@ export const getAccounts = async ({ userId }: GetAccountsProps) => {
       })
     );
 
+    const seenAccounts = new Set<string>();
+    const accounts = linkedAccounts.filter((account) => {
+      const identity = account.mask
+        ? JSON.stringify([
+            account.institutionId,
+            account.name.trim().toLowerCase(),
+            account.mask,
+            account.type,
+            account.subtype,
+          ])
+        : JSON.stringify([
+            account.institutionId,
+            account.name.trim().toLowerCase(),
+            account.type,
+            account.subtype,
+          ]);
+
+      if (seenAccounts.has(identity)) return false;
+
+      seenAccounts.add(identity);
+      return true;
+    });
+
     const totalBanks = accounts.length;
     const totalCurrentBalance = accounts.reduce((total, account) => {
       return total + account.currentBalance;
@@ -55,11 +90,15 @@ export const getAccounts = async ({ userId }: GetAccountsProps) => {
     return parseStringify({ data: accounts, totalBanks, totalCurrentBalance });
   } catch (error) {
     console.error("An error occurred while getting the accounts:", error);
+    throw error;
   }
 };
 
 // Get one bank account
-export const getAccount = async ({ appwriteItemId }: GetAccountProps) => {
+export const getAccount = async ({ appwriteItemId }: GetAccountProps): Promise<{
+  data: Account;
+  transactions: Transaction[];
+}> => {
   try {
     // get bank from db
     const bank = await getBank({ documentId: appwriteItemId });
@@ -68,15 +107,22 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps) => {
     const accountsResponse = await plaidClient.accountsGet({
       access_token: bank.accessToken,
     });
-    const accountData = accountsResponse.data.accounts[0];
+    const accountData = accountsResponse.data.accounts.find(
+      (account) => account.account_id === bank.accountId
+    );
+    if (!accountData) {
+      throw new Error(
+        `Plaid account ${bank.accountId} was not found for bank record ${bank.$id}`
+      );
+    }
 
     // get transfer transactions from appwrite
     const transferTransactionsData = await getTransactionsByBankId({
       bankId: bank.$id,
     });
 
-    const transferTransactions = transferTransactionsData.documents.map(
-      (transferData: Transaction) => ({
+    const transferTransactions: Transaction[] = transferTransactionsData.documents.map(
+      (transferData) => ({
         id: transferData.$id,
         name: transferData.name!,
         amount: transferData.amount!,
@@ -91,6 +137,7 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps) => {
     const institution = await getInstitution({
       institutionId: accountsResponse.data.item.institution_id!,
     });
+    if (!institution) throw new Error("Institution not found");
 
     const transactions = await getTransactions({
       accessToken: bank.accessToken,
@@ -107,6 +154,7 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps) => {
       type: accountData.type as string,
       subtype: accountData.subtype! as string,
       appwriteItemId: bank.$id,
+      sharableId: bank.sharableId,
     };
 
     // sort transactions by date such that the most recent transaction is first
@@ -120,6 +168,7 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps) => {
     });
   } catch (error) {
     console.error("An error occurred while getting the account:", error);
+    throw error;
   }
 };
 
@@ -135,18 +184,20 @@ export const getInstitution = async ({
 
     const institution = institutionResponse.data.institution;
 
+    if (!institution) throw new Error("Institution not found");
     return parseStringify(institution);
   } catch (error) {
-    console.error("An error occurred while getting the accounts:", error);
+    console.error("An error occurred while getting the institution:", error);
+    throw error;
   }
 };
 
 // Get transactions
 export const getTransactions = async ({
   accessToken,
-}: GetTransactionsProps) => {
+}: GetTransactionsProps): Promise<Transaction[]> => {
   let hasMore = true;
-  let transactions: any = [];
+  let transactions: Transaction[] = [];
 
   try {
     // Iterate through each page of new transaction updates for item
@@ -175,6 +226,7 @@ export const getTransactions = async ({
 
     return parseStringify(transactions);
   } catch (error) {
-    console.error("An error occurred while getting the accounts:", error);
+    console.error("An error occurred while getting the transactions:", error);
+    throw error;
   }
 };

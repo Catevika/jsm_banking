@@ -1,13 +1,14 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { authFormSchema } from '@/lib/utils';
-import { type Control, type FieldPath } from 'react-hook-form';
-import { z } from 'zod';
+import type { authFormSchema } from '@/lib/utils';
+import type { Control, FieldPath } from 'react-hook-form';
+import type { z } from 'zod';
 
-const formSchema = authFormSchema('sign-up');
+type FormValues = z.infer<ReturnType<typeof authFormSchema>>;
+
 interface CustomInputProps {
-  control: Control<z.infer<typeof formSchema>>;
-  name: FieldPath<z.infer<typeof formSchema>>;
+  control: Control<FormValues>;
+  name: FieldPath<FormValues>;
   label: string;
   placeholder: string;
   autoComplete: string;

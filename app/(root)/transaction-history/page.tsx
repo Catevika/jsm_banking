@@ -9,24 +9,26 @@ const TransactionHistory = async ({ searchParams }: SearchParamProps) => {
 
   const currentPage = Number(page as string) || 1;
   const loggedIn = await getLoggedInUser();
-  if (!loggedIn && !loggedIn.$id) return;
+  if (!loggedIn) return null;
 
   const accounts = await getAccounts({
-    userId: loggedIn.$id
+    userId: loggedIn.userId
   });
 
   if (!accounts) return;
 
   const accountsData = accounts.data;
+  if (accountsData.length === 0) return null;
   const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;
+  if (!appwriteItemId) return null;
 
   const account = await getAccount({ appwriteItemId });
 
   const rowsPerPage = 10;
-  const totalPages = Math.ceil(account?.transactions.length / rowsPerPage);
+  const totalPages = Math.ceil(account.transactions.length / rowsPerPage);
   const indexOfLastTransaction = currentPage * rowsPerPage;
   const indexOfFirstTransaction = indexOfLastTransaction - rowsPerPage;
-  const currentTransactions = account?.transactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  const currentTransactions = account.transactions.slice(indexOfFirstTransaction, indexOfLastTransaction);
 
   return (
     <div className='transactions'>
@@ -40,13 +42,13 @@ const TransactionHistory = async ({ searchParams }: SearchParamProps) => {
       <div className='space-y-6'>
         <div className='transactions-account'>
           <div className='flex flex-col gap-2'>
-            <h2 className='text-18 font-bold text-white'>{account?.data.name}</h2>
-            <p className='text-14 text-blue-25'>{account?.data.officialName}</p>
-            <p className='text-14 font-semibold tracking-[1.1px] text-white'>●●●● ●●●● ●●●●<span className='text-16'> {account?.data.mask}</span></p>
+            <h2 className='text-18 font-bold text-white'>{account.data.name}</h2>
+            <p className='text-14 text-blue-25'>{account.data.officialName}</p>
+            <p className='text-14 font-semibold tracking-[1.1px] text-white'>●●●● ●●●● ●●●●<span className='text-16'> {account.data.mask}</span></p>
           </div>
           <div className='transactions-account-balance'>
             <p className='text-14'>Current Balance</p>
-            <p className='text-24 text-center font-bold'>{formatAmount(account?.data.currentBalance)}</p>
+            <p className='text-24 text-center font-bold'>{formatAmount(account.data.currentBalance)}</p>
           </div>
         </div>
         <section className='flex w-full flex-col gap-6'>

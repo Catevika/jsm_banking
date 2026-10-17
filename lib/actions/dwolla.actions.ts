@@ -49,7 +49,35 @@ export const createFundingSource = async (
       })
       .then((res) => res.headers.get("location"));
   } catch (err) {
+    const errorBody =
+      typeof err === "object" && err !== null && "body" in err
+        ? err.body
+        : undefined;
+    const links =
+      typeof errorBody === "object" && errorBody !== null && "_links" in errorBody
+        ? errorBody._links
+        : undefined;
+    const about =
+      typeof links === "object" && links !== null && "about" in links
+        ? links.about
+        : undefined;
+    const existingFundingSourceUrl =
+      typeof about === "object" && about !== null && "href" in about
+        ? about.href
+        : undefined;
+
+    if (
+      typeof errorBody === "object" &&
+      errorBody !== null &&
+      "code" in errorBody &&
+      errorBody.code === "DuplicateResource" &&
+      typeof existingFundingSourceUrl === "string"
+    ) {
+      return existingFundingSourceUrl;
+    }
+
     console.error("Creating a Funding Source Failed: ", err);
+    throw err;
   }
 };
 
@@ -62,6 +90,7 @@ export const createOnDemandAuthorization = async () => {
     return authLink;
   } catch (err) {
     console.error("Creating an On Demand Authorization Failed: ", err);
+    throw err;
   }
 };
 
@@ -70,22 +99,18 @@ export const addFundingSource = async ({
   processorToken,
   bankName,
 }: AddFundingSourceParams) => {
-  try {
-    // create dwolla auth link
-    const dwollaAuthLinks = await createOnDemandAuthorization();
+  // create dwolla auth link
+  const dwollaAuthLinks = await createOnDemandAuthorization();
 
-    // add funding source to the dwolla customer & get the funding source url
-    const fundingSourceOptions = {
-      customerId: dwollaCustomerId,
-      fundingSourceName: bankName,
-      plaidToken: processorToken,
-      _links: dwollaAuthLinks,
-    };
+  // add funding source to the dwolla customer & get the funding source url
+  const fundingSourceOptions = {
+    customerId: dwollaCustomerId,
+    fundingSourceName: bankName,
+    plaidToken: processorToken,
+    _links: dwollaAuthLinks,
+  };
 
-    return await createFundingSource(fundingSourceOptions);
-  } catch (err) {
-    console.error("Adding funding source failed: ", err);
-  }
+  return await createFundingSource(fundingSourceOptions);
 };
 
 export const createTransfer = async ({

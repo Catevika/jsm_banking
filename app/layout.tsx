@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 
 import "@/app/globals.css";
+import Script from "next/script";
 import { IBM_Plex_Serif, Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", });
@@ -28,6 +29,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${ibmPlexSerif.variable} antialiased`}
       >
+        <Script
+          src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"
+          strategy="beforeInteractive"
+        />
         {children}
       </body>
     </html>
