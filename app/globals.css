@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../tailwind.config.ts";
 
 * {
 	margin: 0;
@@ -8,15 +8,13 @@
 	box-sizing: border-box;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-	display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
+@utility no-scrollbar {
 	-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
 .glassmorphism {
 	background: rgba(255, 255, 255, 0.25);
@@ -24,23 +22,79 @@
 	-webkit-backdrop-filter: blur(4px);
 }
 
-.custom-scrollbar::-webkit-scrollbar {
+@utility custom-scrollbar {
 	width: 3px;
 	height: 3px;
 	border-radius: 2px;
+
+	&::-webkit-scrollbar-track {
+		background: #dddddd;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: #5c5c7b;
+		border-radius: 50px;
+	}
+
+	&::-webkit-scrollbar-thumb:hover {
+		background: #7878a3;
+	}
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-	background: #dddddd;
+@utility flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-	background: #5c5c7b;
-	border-radius: 50px;
+@utility text-10 {
+	font-size: 10px;
+	line-height: 14px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-	background: #7878a3;
+@utility text-12 {
+	font-size: 12px;
+	line-height: 16px;
+}
+
+@utility text-14 {
+	font-size: 14px;
+	line-height: 20px;
+}
+
+@utility text-16 {
+	font-size: 16px;
+	line-height: 24px;
+}
+
+@utility text-18 {
+	font-size: 18px;
+	line-height: 22px;
+}
+
+@utility text-20 {
+	font-size: 20px;
+	line-height: 24px;
+}
+
+@utility text-24 {
+	font-size: 24px;
+	line-height: 30px;
+}
+
+@utility text-26 {
+	font-size: 26px;
+	line-height: 32px;
+}
+
+@utility text-30 {
+	font-size: 30px;
+	line-height: 38px;
+}
+
+@utility text-36 {
+	font-size: 36px;
+	line-height: 44px;
 }
 
 @layer utilities {
@@ -49,59 +103,15 @@
 	}
 
 	.sheet-content button {
-		@apply focus:ring-0 focus-visible:ring-transparent focus:ring-offset-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-none !important;
+		@apply focus:ring-0! focus-visible:ring-transparent! focus:ring-offset-0! focus-visible:ring-offset-0! focus-visible:outline-none! focus-visible:border-none!;
 	}
 
 	.text14_padding10 {
 		@apply text-14 px-4 py-2.5 font-semibold;
 	}
 
-	.flex-center {
-		@apply flex items-center justify-center;
-	}
-
 	.header-2 {
 		@apply text-18 font-semibold text-gray-900;
-	}
-
-	.text-10 {
-		@apply text-[10px] leading-[14px];
-	}
-
-	.text-12 {
-		@apply text-[12px] leading-[16px];
-	}
-
-	.text-14 {
-		@apply text-[14px] leading-[20px];
-	}
-
-	.text-16 {
-		@apply text-[16px] leading-[24px];
-	}
-
-	.text-18 {
-		@apply text-[18px] leading-[22px];
-	}
-
-	.text-20 {
-		@apply text-[20px] leading-[24px];
-	}
-
-	.text-24 {
-		@apply text-[24px] leading-[30px];
-	}
-
-	.text-26 {
-		@apply text-[26px] leading-[32px];
-	}
-
-	.text-30 {
-		@apply text-[30px] leading-[38px];
-	}
-
-	.text-36 {
-		@apply text-[36px] leading-[44px];
 	}
 
 	/* Home */
@@ -155,7 +165,7 @@
 
 	/* Right sidebar */
 	.right-sidebar {
-		@apply no-scrollbar hidden h-screen max-h-screen flex-col border-l border-gray-200 xl:flex w-[355px] xl:overflow-y-scroll !important;
+		@apply no-scrollbar! hidden! h-screen! max-h-screen! flex-col! border-l! border-gray-200! xl:flex! w-[355px]! xl:overflow-y-scroll!;
 	}
 
 	.profile-banner {
@@ -321,7 +331,7 @@
 	}
 
 	.payment-transfer_btn {
-		@apply text-14 w-full bg-bank-gradient font-semibold text-white shadow-form !important;
+		@apply text-14! w-full! bg-bank-gradient! font-semibold! text-white! shadow-form!;
 	}
 
 	/* Root Layout */
