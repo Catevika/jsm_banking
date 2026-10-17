@@ -47,6 +47,20 @@ const Home = async ({ searchParams }: SearchParamProps) => {
   if (!appwriteItemId) return null;
 
   const account = await getAccount({ appwriteItemId });
+  const otherAccountTransactions = await Promise.all(
+    accounts.data
+      .filter((bankAccount) => bankAccount.appwriteItemId !== appwriteItemId)
+      .map(async (bankAccount) => ({
+        accountId: bankAccount.id,
+        transactions: (
+          await getAccount({ appwriteItemId: bankAccount.appwriteItemId })
+        ).transactions,
+      }))
+  );
+  const transactionsByAccount = [
+    { accountId: account.data.id, transactions: account.transactions },
+    ...otherAccountTransactions,
+  ];
 
   return (
     <section className="home">
@@ -68,7 +82,7 @@ const Home = async ({ searchParams }: SearchParamProps) => {
 
         <RecentTransactions
           accounts={accounts.data}
-          transactions={account.transactions}
+          transactionsByAccount={transactionsByAccount}
           appwriteItemId={appwriteItemId}
           page={currentPage}
         />

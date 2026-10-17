@@ -17,6 +17,8 @@ type TransferDocument = Models.Document & {
   category: string;
   channel: string;
   name: string;
+  senderId: string;
+  receiverId: string;
   receiverBankId: string;
   senderBankId: string;
 };

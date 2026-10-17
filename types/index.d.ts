@@ -213,7 +213,10 @@ declare interface SidebarProps {
 
 declare interface RecentTransactionsProps {
   accounts: Account[];
-  transactions: Transaction[];
+  transactionsByAccount: {
+    accountId: string;
+    transactions: Transaction[];
+  }[];
   appwriteItemId: string;
   page: number;
 }

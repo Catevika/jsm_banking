@@ -130,6 +130,10 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps): Promise<{
         paymentChannel: transferData.channel,
         category: transferData.category,
         type: transferData.senderBankId === bank.$id ? "debit" : "credit",
+        accountId:
+          transferData.senderBankId === bank.$id
+            ? transferData.senderId
+            : transferData.receiverId,
       })
     );
 
@@ -139,9 +143,12 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps): Promise<{
     });
     if (!institution) throw new Error("Institution not found");
 
-    const transactions = await getTransactions({
+    const plaidTransactions = await getTransactions({
       accessToken: bank.accessToken,
     });
+    const accountTransactions = plaidTransactions.filter(
+      (transaction) => transaction.accountId === bank.accountId
+    );
 
     const account = {
       id: accountData.account_id,
@@ -158,9 +165,9 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps): Promise<{
     };
 
     // sort transactions by date such that the most recent transaction is first
-    const allTransactions = [...transactions, ...transferTransactions].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    const allTransactions = [...accountTransactions, ...transferTransactions]
+      .filter((transaction) => transaction.accountId === accountData.account_id)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return parseStringify({
       data: account,
