@@ -30,8 +30,7 @@ const AuthForm = ({ type }: { type: string; }) => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       if (type === 'sign-up') {
         const userData = {
@@ -46,7 +45,15 @@ const AuthForm = ({ type }: { type: string; }) => {
           email: data.email,
           password: data.password
         };
-        signUp(userData);
+        const result = await signUp(userData);
+        if (!result.success) {
+          form.setError('root', {
+            type: 'server',
+            message: result.error,
+          });
+          return;
+        }
+        router.replace('/');
       }
 
       if (type === 'sign-in') {
@@ -54,14 +61,25 @@ const AuthForm = ({ type }: { type: string; }) => {
           email: data.email,
           password: data.password,
         };
-        signIn(userData)
-          .then(() => {
-            router.refresh();
-            router.push('/');
+        const result = await signIn(userData);
+        if (!result.success) {
+          form.setError('root', {
+            type: 'server',
+            message: result.error,
           });
+          return;
+        }
+        router.replace('/');
+        router.refresh();
       }
     } catch (error) {
-      console.log(error);
+      console.error('Authentication failed:', error);
+      form.setError('root', {
+        type: 'server',
+        message: type === 'sign-in'
+          ? 'Unable to sign in. Please check your credentials and try again.'
+          : 'Unable to create your account. Please try again.',
+      });
     }
   };
 
@@ -93,7 +111,12 @@ const AuthForm = ({ type }: { type: string; }) => {
           <CustomInput name='password' control={form.control} label='Password' placeholder='Enter your password' autoComplete='current-password' />
 
           <div className='flex flex-col gap-4'>
-            <Button className='form-btn' type="submit">
+            {form.formState.errors.root?.message && (
+              <p className='form-message' role='alert'>
+                {form.formState.errors.root.message}
+              </p>
+            )}
+            <Button className='form-btn' type="submit" disabled={form.formState.isSubmitting}>
               {type === 'sign-in' ? 'Sign In' : 'Sign Up'}
             </Button>
           </div>

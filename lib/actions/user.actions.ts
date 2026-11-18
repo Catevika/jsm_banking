@@ -101,11 +101,17 @@ export const signIn = async ({ email, password }: SignInProps) => {
       secure: process.env.NODE_ENV === "production",
     });
 
-    return parseStringify(toAppUser(user));
+    revalidatePath("/", "layout");
+    revalidatePath("/sign-in");
+
+    return { success: true, user: parseStringify(toAppUser(user)) };
 
   } catch (error) {
-    console.log('Error', error);
-    throw error;
+    console.error('Sign-in failed:', error);
+    return {
+      success: false,
+      error: 'Unable to sign in. Please check your credentials and try again.',
+    };
   }
 };
 
@@ -151,11 +157,17 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
       secure: process.env.NODE_ENV === "production",
     });
 
-    return parseStringify(toAppUser(newUser));
+    revalidatePath("/", "layout");
+    revalidatePath("/sign-up");
+
+    return { success: true, user: parseStringify(toAppUser(newUser)) };
 
   } catch (error) {
-    console.log('Error', error);
-    throw error;
+    console.error('Sign-up failed:', error);
+    return {
+      success: false,
+      error: 'Unable to create your account. Please try again.',
+    };
   }
 };
 
@@ -186,10 +198,17 @@ export async function getLoggedInUser() {
 export const logoutAccount = async () => {
   try {
     const { account } = await createSessionClient();
-    (await cookies()).delete("appwrite-session");
     await account.deleteSession('current');
+    (await cookies()).delete("appwrite-session");
+    revalidatePath("/", "layout");
+    revalidatePath("/sign-in");
+    return { success: true };
   } catch (error) {
-    console.log('Error', error);
+    console.error('Logout failed:', error);
+    return {
+      success: false,
+      error: 'Unable to log out. Please try again.',
+    };
   }
 };
 
