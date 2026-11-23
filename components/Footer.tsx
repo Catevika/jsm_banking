@@ -16,7 +16,7 @@ const Footer = ({ user, type = 'desktop' }: FooterProps) => {
     try {
       const result = await logoutAccount();
       if (!result.success) {
-        setLogoutError(result.error);
+        setLogoutError(result.error ?? 'Unable to log out. Please try again.');
         return;
       }
 

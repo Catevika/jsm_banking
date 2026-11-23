@@ -38,6 +38,19 @@ const toAppUser = (user: UserDocument): AppUser => ({
   name: user.name ?? `${user.firstName} ${user.lastName}`,
 });
 
+const getPlaidErrorCode = (error: unknown) =>
+  typeof error === "object" &&
+  error !== null &&
+  "response" in error &&
+  typeof error.response === "object" &&
+  error.response !== null &&
+  "data" in error.response &&
+  typeof error.response.data === "object" &&
+  error.response.data !== null &&
+  "error_code" in error.response.data
+    ? String(error.response.data.error_code)
+    : null;
+
 export const getUserInfo = async ({ userId }: GetUserInfoProps) => {
   try {
     const { database } = await createAdminClient();
@@ -314,9 +327,29 @@ export const exchangePublicToken = async ({
 
     const existingPlaidAccounts = await Promise.all(
       existingBanks.documents.map(async (existingBank) => {
-        const existingAccountsResponse = await plaidClient.accountsGet({
-          access_token: existingBank.accessToken,
-        });
+        let existingAccountsResponse;
+        try {
+          existingAccountsResponse = await plaidClient.accountsGet({
+            access_token: existingBank.accessToken,
+          });
+        } catch (error) {
+          if (getPlaidErrorCode(error) === "ITEM_LOGIN_REQUIRED") {
+            console.warn(
+              `Skipping stale Plaid bank ${existingBank.$id}: reconnect required`
+            );
+            if (!existingBank.$id) {
+              console.error("Cannot remove stale Plaid bank without a document ID");
+              return null;
+            }
+            await database.deleteDocument(
+              DATABASE_ID!,
+              BANK_COLLECTION_ID!,
+              existingBank.$id
+            );
+            return null;
+          }
+          throw error;
+        }
         const institutionId =
           existingAccountsResponse.data.item.institution_id;
         if (!institutionId) {
@@ -411,8 +444,22 @@ export const exchangePublicToken = async ({
         processor: "dwolla" as ProcessorTokenCreateRequestProcessorEnum,
       };
 
-      const processorTokenResponse =
-        await plaidClient.processorTokenCreate(request);
+      let processorTokenResponse;
+      try {
+        processorTokenResponse =
+          await plaidClient.processorTokenCreate(request);
+      } catch (error) {
+        if (getPlaidErrorCode(error) === "INVALID_ACCOUNT_ID") {
+          console.warn(
+            `Skipping Plaid account ${accountData.account_id}: account is not eligible for Dwolla money movement`
+          );
+          unsupportedAccounts.push(
+            `${accountData.name} (${accountData.subtype ?? accountData.type})`
+          );
+          continue;
+        }
+        throw error;
+      }
       const fundingSourceUrl = await addFundingSource({
         dwollaCustomerId: fullUserData.dwollaCustomerId,
         processorToken: processorTokenResponse.data.processor_token,

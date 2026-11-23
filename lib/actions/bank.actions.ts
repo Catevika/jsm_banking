@@ -10,6 +10,22 @@ import { parseStringify } from "../utils";
 import { getTransactionsByBankId } from "./transaction.actions";
 import { getBank, getBanks } from "./user.actions";
 
+const getPlaidErrorCode = (error: unknown) =>
+  typeof error === "object" &&
+  error !== null &&
+  "response" in error &&
+  typeof error.response === "object" &&
+  error.response !== null &&
+  "data" in error.response &&
+  typeof error.response.data === "object" &&
+  error.response.data !== null &&
+  "error_code" in error.response.data
+    ? String(error.response.data.error_code)
+    : null;
+
+const isItemLoginRequired = (error: unknown) =>
+  getPlaidErrorCode(error) === "ITEM_LOGIN_REQUIRED";
+
 // Get multiple bank accounts
 export const getAccounts = async ({ userId }: GetAccountsProps): Promise<{
   data: Account[];
@@ -22,10 +38,19 @@ export const getAccounts = async ({ userId }: GetAccountsProps): Promise<{
 
     const linkedAccounts = await Promise.all(
       banks.map(async (bank) => {
-        // get each account info from plaid
-        const accountsResponse = await plaidClient.accountsGet({
-          access_token: bank.accessToken,
-        });
+        let accountsResponse;
+        try {
+          // get each account info from plaid
+          accountsResponse = await plaidClient.accountsGet({
+            access_token: bank.accessToken,
+          });
+        } catch (error) {
+          if (isItemLoginRequired(error)) {
+            console.warn(`Skipping stale Plaid bank ${bank.$id}: reconnect required`);
+            return null;
+          }
+          throw error;
+        }
         const accountData = accountsResponse.data.accounts.find(
           (account) => account.account_id === bank.accountId
         );
@@ -60,7 +85,9 @@ export const getAccounts = async ({ userId }: GetAccountsProps): Promise<{
     );
 
     const seenAccounts = new Set<string>();
-    const accounts = linkedAccounts.filter((account) => {
+    const accounts = linkedAccounts.filter((account): account is Account => {
+      if (!account) return false;
+
       const identity = account.mask
         ? JSON.stringify([
             account.institutionId,
@@ -89,7 +116,10 @@ export const getAccounts = async ({ userId }: GetAccountsProps): Promise<{
 
     return parseStringify({ data: accounts, totalBanks, totalCurrentBalance });
   } catch (error) {
-    console.error("An error occurred while getting the accounts:", error);
+    console.error(
+      "An error occurred while getting the accounts:",
+      getPlaidErrorCode(error) ?? (error instanceof Error ? error.message : "Unknown error")
+    );
     throw error;
   }
 };
@@ -104,9 +134,17 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps): Promise<{
     const bank = await getBank({ documentId: appwriteItemId });
 
     // get account info from plaid
-    const accountsResponse = await plaidClient.accountsGet({
-      access_token: bank.accessToken,
-    });
+    let accountsResponse;
+    try {
+      accountsResponse = await plaidClient.accountsGet({
+        access_token: bank.accessToken,
+      });
+    } catch (error) {
+      if (isItemLoginRequired(error)) {
+        throw new Error("This bank needs to be reconnected through Plaid.");
+      }
+      throw error;
+    }
     const accountData = accountsResponse.data.accounts.find(
       (account) => account.account_id === bank.accountId
     );
@@ -174,7 +212,10 @@ export const getAccount = async ({ appwriteItemId }: GetAccountProps): Promise<{
       transactions: allTransactions,
     });
   } catch (error) {
-    console.error("An error occurred while getting the account:", error);
+    console.error(
+      "An error occurred while getting the account:",
+      getPlaidErrorCode(error) ?? (error instanceof Error ? error.message : "Unknown error")
+    );
     throw error;
   }
 };
@@ -204,36 +245,47 @@ export const getTransactions = async ({
   accessToken,
 }: GetTransactionsProps): Promise<Transaction[]> => {
   let hasMore = true;
-  let transactions: Transaction[] = [];
+  let cursor: string | undefined;
+  const transactions: Transaction[] = [];
 
   try {
     // Iterate through each page of new transaction updates for item
     while (hasMore) {
       const response = await plaidClient.transactionsSync({
         access_token: accessToken,
+        ...(cursor !== undefined ? { cursor } : {}),
       });
 
       const data = response.data;
 
-      transactions = response.data.added.map((transaction) => ({
-        id: transaction.transaction_id,
-        name: transaction.name,
-        paymentChannel: transaction.payment_channel,
-        type: transaction.payment_channel,
-        accountId: transaction.account_id,
-        amount: transaction.amount,
-        pending: transaction.pending,
-        category: transaction.category ? transaction.category[0] : "",
-        date: transaction.date,
-        image: transaction.logo_url,
-      }));
-
+      transactions.push(
+        ...data.added.map((transaction) => ({
+          id: transaction.transaction_id,
+          name: transaction.name,
+          paymentChannel: transaction.payment_channel,
+          type: transaction.payment_channel,
+          accountId: transaction.account_id,
+          amount: transaction.amount,
+          pending: transaction.pending,
+          category: transaction.category ? transaction.category[0] : "",
+          date: transaction.date,
+          image: transaction.logo_url,
+        }))
+      );
+      cursor = data.next_cursor;
       hasMore = data.has_more;
     }
 
     return parseStringify(transactions);
   } catch (error) {
-    console.error("An error occurred while getting the transactions:", error);
+    if (isItemLoginRequired(error)) {
+      console.warn("Skipping transactions for a Plaid bank that requires reconnect");
+      return [];
+    }
+    console.error(
+      "An error occurred while getting the transactions:",
+      getPlaidErrorCode(error) ?? (error instanceof Error ? error.message : "Unknown error")
+    );
     throw error;
   }
 };
